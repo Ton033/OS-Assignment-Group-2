@@ -25,6 +25,20 @@ public class ClientHandler implements Runnable {
 
             while ((line = in.readLine()) != null) {
                 System.out.printf(" Sent from the client: %s\n",line); out.println(line);
+
+                String[] newLine = line.split(" "); // Breaks the input string around the space into arrays
+
+                // Turns the two first string into a double variable
+                double num1 = Double.parseDouble(newLine[0]);
+                double num2 = Double.parseDouble(newLine[1]);
+                String operation = newLine[2];
+
+                //performs the operation and returns it
+                double result = performOperation(num1, num2, operation);
+                System.out.println(result);
+
+
+
             }
         }
         catch (IOException e) {
@@ -47,9 +61,20 @@ public class ClientHandler implements Runnable {
     }
 
 
+    /**
+     * Does an operation based on the given input
+     *
+     *
+     * @param num1 The first number
+     * @param num2 The second number
+     * @param operator What kind of operations the method should do
+     *                 (A, S, M, D corresponding to the operation of addition,
+     *                 subtraction, multiplication and division)
+     *
+     * @return Returns the result after the operation.
+     *         If the user tries to divide by zero, return zero
+     */
     private double performOperation(double num1, double num2, String operator) {
-        double sum = 0;
-
         switch (operator) {
             case "A":
                 return num1 + num2;
@@ -58,7 +83,7 @@ public class ClientHandler implements Runnable {
             case "M":
                 return num1 * num2;
             case "D":
-                if (num2 <= 0 ) {
+                if (num1 == 0 || num2 == 0) {
                     return 0;
                 } else {
                     return num1 / num2;

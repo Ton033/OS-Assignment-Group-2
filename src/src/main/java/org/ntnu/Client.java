@@ -12,6 +12,7 @@ public class Client {
 
     /**
      * Tries to connect to the server with a host and a port
+     *
      */
     public static void main(String[] args) {
         try (Socket socket = new Socket("localhost", 12345)) {
@@ -24,6 +25,8 @@ public class Client {
             String line = null;
 
 
+
+            //Reads the terminal
             while (!"exit".equalsIgnoreCase(line)) {
                 line = sc.nextLine();
                 out.println(line);
