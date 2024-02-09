@@ -6,14 +6,11 @@ import java.net.Socket;
 
 public class Server {
 
-
-    public void Server() {
+    public static void main(String[] args) {
 
         ServerSocket server = null;
-
         try {
             server = new ServerSocket(12345);
-
             while (true) {
                 Socket client = server.accept();
 
@@ -37,5 +34,7 @@ public class Server {
             throw new RuntimeException(e);
         }
     }
+
+
     }
 

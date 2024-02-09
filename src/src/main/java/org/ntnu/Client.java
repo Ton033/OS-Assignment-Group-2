@@ -13,7 +13,7 @@ public class Client {
     /**
      * Tries to connect to the server with a host and a port
      */
-    public void start() {
+    public static void main(String[] args) {
         try (Socket socket = new Socket("localhost", 12345)) {
 
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -22,6 +22,7 @@ public class Client {
             Scanner sc = new Scanner(System.in);
 
             String line = null;
+
 
             while (!"exit".equalsIgnoreCase(line)) {
                 line = sc.nextLine();
@@ -38,9 +39,7 @@ public class Client {
         } catch (IOException e) {
             throw new RuntimeException("Could not connect to server");
         }
-        ;
 
     }
-
 
 }
