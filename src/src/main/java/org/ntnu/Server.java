@@ -10,7 +10,7 @@ public class Server {
 
         ServerSocket server = null;
         try {
-            server = new ServerSocket(12345);
+            server = new ServerSocket(1234);
             while (true) {
                 Socket client = server.accept();
 

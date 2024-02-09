@@ -24,21 +24,23 @@ public class ClientHandler implements Runnable {
             String line;
 
             while ((line = in.readLine()) != null) {
-                System.out.printf(" Sent from the client: %s\n",line); out.println(line);
+                System.out.printf(" Sent from the client: %s\n",line);
 
                 String[] newLine = line.split(" "); // Breaks the input string around the space into arrays
+                if (newLine.length == 3) {
 
-                // Turns the two first string into a double variable
-                double num1 = Double.parseDouble(newLine[0]);
-                double num2 = Double.parseDouble(newLine[1]);
-                String operation = newLine[2];
+                    // Turns the two first string into a double variable
+                    double num1 = Double.parseDouble(newLine[0]);
+                    double num2 = Double.parseDouble(newLine[1]);
+                    String operation = newLine[2];
 
-                //performs the operation and returns it
-                double result = performOperation(num1, num2, operation);
-                System.out.println(result);
+                    //performs the operation and returns it
+                    double result = performOperation(num1, num2, operation);
+                    out.println(result); //Sends result to client
 
-
-
+                } else {
+                    out.println("Invalid input format."); //Sends error message to client
+                }
             }
         }
         catch (IOException e) {
