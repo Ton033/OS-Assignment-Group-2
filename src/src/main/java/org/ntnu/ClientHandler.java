@@ -34,10 +34,13 @@ public class ClientHandler implements Runnable {
                     double num2 = Double.parseDouble(newLine[1]);
                     String operation = newLine[2];
 
-                    //performs the operation and returns it
-                    double result = performOperation(num1, num2, operation);
-                    out.println(result); //Sends result to client
-
+                    try {
+                        // Performs the operation and returns it
+                        double result = performOperation(num1, num2, operation);
+                        out.println(result); // Sends result to client
+                    } catch (IllegalArgumentException e) {
+                        out.println("Error: " + e.getMessage()); // Sends error message to client
+                    }
                 } else {
                     out.println("Invalid input format."); //Sends error message to client
                 }
@@ -48,19 +51,18 @@ public class ClientHandler implements Runnable {
         }
         finally {
             try {
+                if (in != null) {
+                    in.close();
+                }
                 if (out != null) {
                     out.close();
                 }
-                if (in != null) {
-                    in.close();
-                    clientSocket.close();
-                }
-            }
-            catch (IOException e) {
+                clientSocket.close();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    }
+    }        
 
 
     /**
@@ -85,13 +87,19 @@ public class ClientHandler implements Runnable {
             case "M":
                 return num1 * num2;
             case "D":
-                if (num1 == 0 || num2 == 0) {
-                    return 0;
+                if (num2 == 0) {
+                    throw new IllegalArgumentException("Error: Division by zero");
                 } else {
                     return num1 / num2;
                 }
+            case "MOD":
+                if (num2 == 0) {
+                    throw new IllegalArgumentException("Error: Modulus by zero");
+                } else {
+                    return num1 % num2;
+                }
             default:
-                throw new IllegalStateException("Invalid input");
+                throw new IllegalArgumentException("Error: Invalid operation code");
         }
 
     }

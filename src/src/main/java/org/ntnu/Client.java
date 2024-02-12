@@ -16,35 +16,31 @@ public class Client {
      */
     public static void main(String[] args) {
         try (Socket socket = new Socket("localhost", 1234)) {
-
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             Scanner sc = new Scanner(System.in);
 
+            System.out.println("Connected to server. Type 'exit' to quit.");
             String line = null;
 
             while (!"exit".equalsIgnoreCase(line)) {
-
                 line = sc.nextLine();
 
+                long startTime = System.currentTimeMillis();
                 out.println(line);
                 out.flush();
+                String response = in.readLine();
+                long endTime = System.currentTimeMillis();
 
-                String response;
-                if ((response = in.readLine()) != null) {
-                    System.out.println(response);
-                    response = null;
-                }
-
+                System.out.println("Server response: " + response);
+                System.out.println("Round trip time: " + (endTime - startTime) + " ms");
             }
 
-            sc.close();
-
+            System.out.println("Disconnected from server.");
         } catch (UnknownHostException e) {
-            throw new RuntimeException("Could not connect to server");
+            System.err.println("Could not connect to server: Unknown host.");
         } catch (IOException e) {
-            throw new RuntimeException("Could not connect to server");
+            System.err.println("Could not connect to server: IO exception.");
         }
-
     }
 }

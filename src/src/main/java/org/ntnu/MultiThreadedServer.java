@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Server {
+public class MultiThreadedServer {
 
     public static void main(String[] args) {
 
@@ -19,8 +19,6 @@ public class Server {
                 ClientHandler clientSock = new ClientHandler(client);
 
                 new Thread(clientSock).start();
-
-
             }
 
         } catch (IOException e) {
@@ -34,7 +32,5 @@ public class Server {
             throw new RuntimeException(e);
         }
     }
-
-
-    }
+ }
 
