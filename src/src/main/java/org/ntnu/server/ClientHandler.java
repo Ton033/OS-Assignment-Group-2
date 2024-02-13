@@ -1,4 +1,4 @@
-package org.ntnu;
+package org.ntnu.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
