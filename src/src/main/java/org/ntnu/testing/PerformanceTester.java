@@ -3,55 +3,38 @@ package org.ntnu.testing;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.ntnu.client.ClientSimulator;
 import org.ntnu.server.MultiThreadedServer;
 import org.ntnu.server.SingleThreadedServer;
 
 public class PerformanceTester {
-    private static List<Long> responseTimes = Collections.synchronizedList(new ArrayList<>());
+    private static List<Long> allRoundsResponseTimes = Collections.synchronizedList(new ArrayList<>());
+    private static int totalClientsTested = 0;
 
-    public static synchronized void recordResponseTime(long responseTime) {
-        responseTimes.add(responseTime);
+    public static synchronized void recordResponseTime(long responseTimeMs) {
+        allRoundsResponseTimes.add(responseTimeMs);
     }
 
-    public static void main(String[] args) {
-        // Default values
-        int numberOfClients = 10;
-        boolean isMultiThreaded = true;
-
-        if (args.length > 0) {
-            try {
-                numberOfClients = Integer.parseInt(args[0]);
-                if (args.length > 1) {
-                    isMultiThreaded = Boolean.parseBoolean(args[1]);
-                }
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid argument format. Using default values.");
-            }
+    public static void runTests(int numberOfClients, boolean isMultiThreaded, int testRounds) {
+        totalClientsTested = 0;
+        for (int round = 1; round <= testRounds; round++) {
+            System.out.println("Running test round: " + round + " of " + testRounds);
+            testServer(numberOfClients, isMultiThreaded);
+            totalClientsTested += numberOfClients;
         }
-
-        // Start the testing process
-        testServer(numberOfClients, isMultiThreaded);
+        displayFinalResults();
+        allRoundsResponseTimes.clear();
     }
 
-    public static void testServer(int numberOfClients, boolean isMultiThreaded) {
+    private static void testServer(int numberOfClients, boolean isMultiThreaded) {
         startServer(isMultiThreaded);
-
         waitForServerStartup();
-
-        System.out.println("Simulating " + numberOfClients + " clients...");
         ClientSimulator.simulateClients(numberOfClients);
-
         waitForClientCompletion();
-
         stopServer(isMultiThreaded);
-
-        displayResults();
     }
 
     private static void startServer(boolean isMultiThreaded) {
-        System.out.println(isMultiThreaded ? "Starting MultiThreadedServer" : "Starting SingleThreadedServer");
         if (isMultiThreaded) {
             MultiThreadedServer.startServer();
         } else {
@@ -64,7 +47,6 @@ public class PerformanceTester {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.out.println("Wait interrupted: " + e.getMessage());
         }
     }
 
@@ -77,20 +59,40 @@ public class PerformanceTester {
         } else {
             SingleThreadedServer.stopServer();
         }
-        System.out.println("Server stopped.");
     }
 
-    private static void displayResults() {
-        if (responseTimes.isEmpty()) {
+    private static void displayFinalResults() {
+        if (allRoundsResponseTimes.isEmpty()) {
             System.out.println("No results to display.");
             return;
         }
-    
-        long totalResponseTime = responseTimes.stream().mapToLong(Long::longValue).sum();
-        double averageResponseTime = totalResponseTime / (double) responseTimes.size();
-    
-        System.out.println("Total clients: " + responseTimes.size());
-        System.out.println("Total response time: " + totalResponseTime + " nanoseconds");
-        System.out.println("Average response time: " + averageResponseTime + " nanoseconds");
+
+        Collections.sort(allRoundsResponseTimes);
+        double averageResponseTimeMs = allRoundsResponseTimes.stream().mapToDouble(Long::doubleValue).average().orElse(0.0);
+        long medianResponseTimeMs = calculateMedian(allRoundsResponseTimes);
+        long responseTime95thPercentileMs = calculatePercentile(allRoundsResponseTimes, 95);
+
+        System.out.println("Aggregated results after all test rounds:");
+        System.out.println("Total clients tested: " + totalClientsTested);
+        System.out.println("Average response time: " + averageResponseTimeMs + " ms");
+        System.out.println("Median response time: " + medianResponseTimeMs + " ms");
+        System.out.println("95th percentile response time: " + responseTime95thPercentileMs + " ms");
+    }
+
+    private static long calculateMedian(List<Long> times) {
+        int size = times.size();
+        if (size % 2 == 0) {
+            return (times.get(size / 2 - 1) + times.get(size / 2)) / 2;
+        } else {
+            return times.get(size / 2);
+        }
+    }
+
+    private static long calculatePercentile(List<Long> times, double percentile) {
+        int index = (int) Math.ceil(percentile / 100.0 * times.size()) - 1;
+        return times.get(index);
+    }
+
+    public static void main(String[] args) {
     }
 }
